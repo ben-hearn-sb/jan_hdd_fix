@@ -95,6 +95,7 @@ class Process_Dialog(QtWidgets.QDialog):
 			processWidget.setForeground(QtGui.QBrush(QtGui.QColor(color)))
 		self.activityLog.addItem(processWidget)
 		self.activityLog.scrollToItem(processWidget)
+		self.activityLog.repaint()
 		QtWidgets.QApplication.processEvents()
 
 	def clearLog(self):

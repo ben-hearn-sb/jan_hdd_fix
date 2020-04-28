@@ -3,7 +3,6 @@ from process_dialog import Process_Dialog
 
 import os
 import ntpath
-import sys
 import time
 import stat
 import shutil
@@ -176,16 +175,3 @@ class HDD_FIX(QtWidgets.QDialog):
             metadata[f_year][f_month][f_day].update({f_path:{'time':f_time}})
 
         return metadata
-
-
-def main():
-    app = QtWidgets.QApplication(sys.argv)
-    app.setApplicationName("HDD_Fix")
-
-    window = HDD_FIX()
-    window.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == '__main__':
-    main()
