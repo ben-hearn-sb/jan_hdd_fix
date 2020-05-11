@@ -53,7 +53,7 @@ class HDD_FIX(QtWidgets.QDialog):
             self.log.updateLog('Tut Tut, feed me a root directory before running cleanup', warning=True)
             return
 
-        extensions = ('.cr2', '.jpeg', '.jpg', '.mp4')
+        extensions = ('.cr2', '.jpeg', '.jpg', '.mp4', '.dng', '.mov', '.mpeg', '.arw', '.nef', '.dsc', '.png')
 
         img_files = list()
         for root, folder, files in os.walk(self.selected_root):
@@ -126,14 +126,38 @@ class HDD_FIX(QtWidgets.QDialog):
 
                         if not os.path.exists(new_path):
                             index += 1
-                            self.log.updateLog('Processing file: {0}'.format(f_path))
-                            self.log.dialogProgressBar.setValue(index)
-                            shutil.move(f_path, new_path)
-
-                            # Need to make sure that the dirs are cleanedup if they are empty
-                            self.cleanup_dir(f_path)
+                            self.move_file(f_path, new_path, index)
                         else:
-                            self.log.updateLog('Path already exists, skipping: {0}'.format(new_path), warning=True)
+                            new_path = self.check_timestamp_match(new_path)
+                            index += 1
+                            self.move_file(f_path, new_path, index)
+
+
+    def move_file(self, orig_path, new_path, index):
+        self.log.updateLog('Processing file: {0}'.format(orig_path))
+        self.log.dialogProgressBar.setValue(index)
+        shutil.move(orig_path, new_path)
+
+        # Need to make sure that the dirs are cleaned up if they are empty
+        self.cleanup_dir(orig_path)
+
+
+    def check_timestamp_match(self, file_path, stamp=1):
+        self.log.updateLog('Identical timestamp found, renaming & moving: {0}'.format(file_path))
+        dirpath = os.path.dirname(file_path)
+        fname = ntpath.basename(file_path)
+
+        name, ext = ntpath.splitext(fname)
+
+        if stamp > 1:
+            name = name[:-3]
+        newname = name + '_{0}_'.format(stamp) + ext
+
+        new_path = os.path.join(dirpath, newname)
+
+        if os.path.exists(new_path):
+            new_path = self.check_timestamp_match(new_path, stamp+1)
+        return new_path
 
 
     def cleanup_dir(self, f_path):
